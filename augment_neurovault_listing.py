@@ -19,24 +19,29 @@ def main():
         for pmid in pmids:
             f.write(f"{pmid}\n")
 
-    # data = df.to_dict(orient="list")
+    data = df.to_dict(orient="list")
 
-    # for i, doi in data["doi"]:
+    data["year"] = []
+    data["title"] = []
+    data["source_title"] = []
 
-    #     if doi:
-    #         if metadata := get_metadata_from_doi(doi)[0]:
-    #             year = metadata["year"]
-    #             title = metadata["title"]
-    #             source_title = metadata["source_title"]
-    #     data["year"][-1] = year
-    #     data["title"][-1] = title
-    #     data["source_title"][-1] = source_title
+    for i, doi in enumerate(data["doi"]):
 
-        # print(title)
+        if i % 20 == 0:
+            print(f"Processing {i+1} / {len(data['doi'])}")
 
+        if doi:
+            if metadata := get_metadata_from_doi(doi):
+                metadata = metadata[0]
+                year = metadata["year"]
+                title = metadata["title"]
+                source_title = metadata["source_title"]
+        data["year"].append(year)
+        data["title"].append(title)
+        data["source_title"].append(source_title)
 
-
-
+    df = pd.DataFrame(data)
+    df.to_csv("neurovault_listing_augmented.tsv", sep="\t", index=False)
 
 def get_metadata_from_doi(doi: str) -> dict[str, str]:
     headers = {"authorization": TOKEN}
